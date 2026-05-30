@@ -102,11 +102,6 @@ export default function Services() {
         <div className="flex-1">
           <h3 className="font-semibold mb-2" style={{ color: '#1A3A5C' }}>
             {title}
-            {isPrimary && (
-              <span className="ml-2 text-xs px-2 py-1 rounded-full bg-[#2563EB] text-white">
-                Principal
-              </span>
-            )}
           </h3>
           <p className="text-sm text-gray-600">{desc}</p>
         </div>

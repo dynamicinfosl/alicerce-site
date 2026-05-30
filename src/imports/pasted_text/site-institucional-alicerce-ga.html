@@ -1,0 +1,390 @@
+# PROMPT — Site Institucional Alicerce Galante
+
+---
+
+## CONTEXTO GERAL
+
+Crie um site institucional completo, moderno, profissional e inovador para a empresa **Alicerce Galante - Serviços e Construções LDA**, uma empresa portuguesa sediada em Vila Nova de Gaia que atua principalmente em **serviços de limpeza profissional** e também em **construção civil, instalações e serviços gerais de manutenção**.
+
+O resultado final deve ser um único arquivo HTML auto-contido (HTML + CSS + JS inline) pronto para abrir no browser, sem dependências locais — apenas CDNs externos permitidos.
+
+---
+
+## DADOS DA EMPRESA
+
+| Campo | Valor |
+|---|---|
+| **Nome completo** | Alicerce Galante - Serviços e Construções LDA |
+| **Nome curto / marca** | Alicerce Galante |
+| **Endereço** | Rua das Camélias, 135 — Vila Nova de Gaia |
+| **Código Postal** | 4430-038 |
+| **Telefone** | +351 928 380 182 |
+| **País de atuação** | Portugal |
+| **Setor primário** | Limpeza profissional (residencial e comercial) |
+| **Setores secundários** | Construção civil, instalações eléctricas/hidráulicas, manutenção, remodelações |
+
+---
+
+## IDENTIDADE VISUAL / LOGO
+
+Crie uma **logo temporária** para a empresa diretamente em SVG inline no HTML, com as seguintes diretrizes:
+
+- **Paleta de cores principal:** Azul profundo `#1A3A5C`, Azul médio `#2563EB`, Branco `#FFFFFF`, Cinza claro `#F1F5F9`, Cinza médio `#64748B`
+- **Conceito da logo:** Um símbolo que transmita solidez e confiança — sugestão: ícone de um "alicerce" ou bloco de construção estilizado combinado com linhas limpas que remetam a limpeza e organização. O nome "Alicerce Galante" deve estar presente em tipografia clean e profissional
+- **Tagline sugerida:** *"Construímos confiança, limpamos o caminho"* ou *"Solidez em cada serviço"*
+- A logo deve funcionar bem em fundo escuro (navbar) e fundo claro
+
+---
+
+## PALETA DE CORES DO SITE
+
+```css
+--azul-profundo:   #1A3A5C;
+--azul-medio:      #2563EB;
+--azul-claro:      #EFF6FF;
+--cinza-escuro:    #1E293B;
+--cinza-medio:     #64748B;
+--cinza-claro:     #F1F5F9;
+--branco:          #FFFFFF;
+--acento:          #38BDF8; /* azul céu para CTAs e destaques */
+```
+
+Tons neutros de cinza e branco predominam no fundo. O azul profundo é usado em headers, footers e elementos de destaque. O azul médio é a cor de ação (botões, links, ícones ativos).
+
+---
+
+## TIPOGRAFIA
+
+- **Display / Títulos:** `Syne` ou `Outfit` (Google Fonts) — bold, moderno, geométrico
+- **Corpo de texto:** `Inter` ou `Plus Jakarta Sans` — legível, clean, profissional
+- **Tamanhos:** H1 hero ~72px, H2 seções ~42px, H3 cards ~22px, corpo 16-18px
+
+---
+
+## ANIMAÇÕES — OBRIGATÓRIO GSAP
+
+Utilize **GSAP (GreenSock)** via CDN como motor principal de animação:
+
+```html
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+```
+
+### Animações obrigatórias a implementar:
+
+1. **Hero — Entrada cinematográfica**
+   - Título principal entra com `gsap.from()` com split de palavras (efeito stagger de baixo para cima, `y: 80, opacity: 0, duration: 1.2`)
+   - Subtítulo aparece com fade após o título
+   - CTA buttons entram com delay e leve bounce (`ease: "back.out(1.7)"`)
+   - Background com partículas flutuantes ou efeito parallax sutil
+
+2. **Navbar**
+   - Ao fazer scroll para baixo: `gsap.to(navbar, { background: "rgba(26,58,92,0.97)", backdropFilter: "blur(12px)", boxShadow: "...", duration: 0.4 })`
+   - Links com hover underline animado via CSS + GSAP
+
+3. **Scroll Reveal — Seções**
+   - Cada seção usa `ScrollTrigger` com `trigger`, `start: "top 80%"`, `toggleActions: "play none none reverse"`
+   - Cards de serviços entram em stagger: `gsap.from(cards, { y: 60, opacity: 0, stagger: 0.15, duration: 0.8 })`
+   - Números de estatísticas (contadores animados): `gsap.to(counter, { innerText: valorFinal, duration: 2, snap: { innerText: 1 } })`
+
+4. **Cards de Serviços**
+   - Hover com GSAP: `scale: 1.03`, leve `y: -8`, sombra aumenta suavemente
+   - Ícone do card rotaciona levemente ou pulsa no hover
+
+5. **Seção de Orçamento**
+   - Formulário entra com `gsap.from()` com efeito de "surgir" da esquerda
+   - Labels flutuantes (float labels) com transição suave
+   - Botão de submit com efeito de loading animado ao clicar
+
+6. **Parallax**
+   - Imagem ou gradiente de fundo no hero com efeito parallax via `ScrollTrigger` (move em velocidade diferente do conteúdo)
+
+7. **Cursor personalizado** *(opcional mas valorizado)*
+   - Cursor circular que segue o mouse com GSAP `mousemove` + `lag` suave
+
+8. **Loader inicial**
+   - Tela de loading com logo animada que desaparece antes da página carregar (GSAP timeline: logo entra → pausa → tela sobe revelando o site)
+
+---
+
+## ESTRUTURA DO SITE — SEÇÕES OBRIGATÓRIAS
+
+### 1. LOADER / SPLASH SCREEN
+- Fundo azul profundo com a logo centralizada
+- Animação de entrada e saída antes da página principal aparecer
+- Duração: ~1.5 segundos
+
+---
+
+### 2. NAVBAR (fixa, topo)
+- Logo à esquerda
+- Links de navegação: `Início | Serviços | Sobre Nós | Equipa | Orçamento | Contacto`
+- Botão CTA destacado: **"Pedir Orçamento"** (azul médio, cantos arredondados)
+- Mobile: menu hamburger com animação GSAP (drawer lateral ou menu fullscreen)
+- Comportamento ao scroll: torna-se translúcida com blur (glassmorphism sutil)
+
+---
+
+### 3. HERO SECTION
+- Fullscreen (100vh)
+- Título principal impactante, ex: *"Limpeza Profissional. Construção de Confiança."*
+- Subtítulo com proposta de valor clara
+- Dois botões CTA: **"Pedir Orçamento Grátis"** e **"Conhecer os Serviços"**
+- Background: gradiente azul profundo com forma geométrica abstrata (SVG ou CSS) ou imagem de alta qualidade com overlay
+- Badge de confiança: *"Baseados em Vila Nova de Gaia | Atuamos em todo Portugal"*
+- Scroll indicator animado (seta ou chevron pulsando)
+
+---
+
+### 4. FAIXA DE ESTATÍSTICAS / NÚMEROS
+- Fundo azul profundo, largura total
+- 4 métricas com contadores animados:
+  - 🏠 **+500** Clientes Satisfeitos
+  - ✅ **+1.200** Serviços Concluídos
+  - ⭐ **98%** Taxa de Satisfação
+  - 📅 **+5** Anos de Experiência
+- Números animam ao entrar no viewport (ScrollTrigger + counter GSAP)
+
+---
+
+### 5. SERVIÇOS (grid de cards)
+
+#### Categoria A — Limpeza Profissional *(Serviço Principal)*
+Apresentar como destaque visual (maior, cor diferenciada):
+
+| Serviço | Descrição curta |
+|---|---|
+| Limpeza Residencial | Casas, apartamentos e moradias — regular ou pontual |
+| Limpeza Comercial | Escritórios, lojas, espaços de trabalho |
+| Limpeza Profunda | Limpeza geral completa, desinfeção total |
+| Limpeza Pós-Obra | Remoção de pó, resíduos e entulho fino após construção |
+| Limpeza de Condomínios | Partes comuns, escadas, garagens, hall |
+| Limpeza de Vidros e Janelas | Interior e exterior, incluindo alturas |
+| Limpeza de Sofás e Tapetes | Higienização profunda com equipamento especializado |
+| Limpeza de Alojamento Local | Gestão de limpeza para Airbnb e AL |
+| Limpeza Pré/Pós Mudança | Preparação e finalização de imóveis |
+| Desinfeção e Higienização | Ambientes sensíveis, sanitização profissional |
+
+#### Categoria B — Construção e Remodelação
+
+| Serviço | Descrição curta |
+|---|---|
+| Remodelações Interiores | Obras de renovação, transformação de espaços |
+| Pintura Interior e Exterior | Paredes, fachadas, tetos |
+| Carpintaria | Armários, rodapés, soalhos, madeiras em geral |
+| Impermeabilização | Terraços, casas de banho, coberturas |
+| Pavimentos | Colocação e tratamento de pavimentos |
+| Casas de Madeira | Construção modular, amovível, sem licença |
+
+#### Categoria C — Instalações e Manutenção
+
+| Serviço | Descrição curta |
+|---|---|
+| Instalações Eléctricas | Pequenas obras, revisões, certificações |
+| Instalações Hidráulicas | Reparações, substituições, canalizações |
+| Aquecimento e Climatização | AVAC, ar condicionado, aquecimento central |
+| Certificação Energética | Obrigatória para venda/arrendamento de imóveis |
+| Espaços Verdes e Jardins | Manutenção, corte, arranjos exteriores |
+| Serralharia e Fechaduras | Reparações, substituições, segurança |
+
+**Layout dos cards:**
+- Grid responsivo: 3 colunas (desktop), 2 (tablet), 1 (mobile)
+- Cada card tem: ícone SVG temático, título, descrição de 2 linhas, link "Saber mais" ou badge da categoria
+- Hover: elevação sutil com GSAP, border-top colorida aparece
+- Cards de Limpeza com destaque visual diferente (ícone maior, badge "Serviço Principal")
+
+---
+
+### 6. POR QUE NOS ESCOLHER? (Diferenciais)
+- Layout em 2 colunas: texto à esquerda, visual à direita (ou ícones grandes)
+- 5-6 diferenciais com ícone e texto:
+  - ✅ Equipa certificada e segurada
+  - ✅ Produtos eco-friendly disponíveis
+  - ✅ Orçamento grátis e sem compromisso
+  - ✅ Serviço rápido e pontual
+  - ✅ Atendimento personalizado
+  - ✅ Cobertura em todo o distrito do Porto e Grande Lisboa
+
+---
+
+### 7. COMO FUNCIONA (Processo em 4 passos)
+- Layout horizontal com linha conectora animada
+- Passo 1: Pedido de Orçamento
+- Passo 2: Visita / Avaliação
+- Passo 3: Agendamento
+- Passo 4: Execução e Garantia
+- Animação: linha progride da esquerda para a direita no scroll (ScrollTrigger + GSAP `scaleX`)
+
+---
+
+### 8. DEPOIMENTOS / TESTEMUNHOS
+- Slider/carrossel automático (com pause no hover)
+- 4-6 depoimentos fictícios mas realistas (clientes de limpeza residencial, gestores de condomínios, escritórios)
+- Avatar circular com iniciais coloridas (sem fotos reais)
+- Nome, tipo de serviço usado, avaliação em estrelas (⭐⭐⭐⭐⭐)
+- Animação: fade entre slides com GSAP
+
+---
+
+### 9. EQUIPA / MEMBROS
+- Secção com grid de cards da equipa
+- 4-5 membros fictícios com cargos realistas:
+  - Diretora Geral
+  - Coordenador de Limpeza
+  - Técnico de Construção
+  - Responsável de Atendimento ao Cliente
+  - Técnico de Instalações
+- Cada card: avatar com inicial, nome, cargo, breve bio (1 linha), ícones de redes sociais (LinkedIn, etc.)
+- Hover: card "vira" levemente ou overlay aparece com cor azul
+
+---
+
+### 10. SECÇÃO DE ORÇAMENTO (formulário)
+- Fundo diferenciado (azul claro ou padrão geométrico sutil)
+- Título: *"Peça o seu Orçamento Grátis"*
+- Subtítulo: *"Respondemos em menos de 24 horas"*
+- Campos do formulário:
+  - Nome completo *
+  - Email *
+  - Telefone *
+  - Tipo de Serviço (dropdown: Limpeza Residencial / Limpeza Comercial / Pós-Obra / Construção / Instalações / Outro)
+  - Localização / Cidade *
+  - Área aproximada (m²) — campo numérico opcional
+  - Frequência (dropdown: Pontual / Semanal / Quinzenal / Mensal) — aparece condicionalmente se Limpeza
+  - Mensagem / Detalhes adicionais (textarea)
+  - Checkbox: *"Aceito a Política de Privacidade"*
+- Botão: **"Enviar Pedido de Orçamento"** com animação de loading
+- Após "submit" (mock): mensagem de sucesso animada com GSAP (✅ verde, texto de confirmação)
+- Layout: 2 colunas no desktop (form à esquerda, info de contacto à direita)
+- Coluna direita mostra: telefone, email fictício, horário de atendimento, mapa estático ou placeholder
+
+---
+
+### 11. SOBRE NÓS
+- História da empresa (texto de 2-3 parágrafos)
+- Missão, Visão e Valores (3 cards ou ícones)
+- Faixa com certificações/parcerias (logos placeholder ou badges)
+
+---
+
+### 12. BLOG / DICAS (Secção opcional mas recomendada)
+- 3 cards de artigos fictícios:
+  - *"5 dicas para manter a sua casa sempre limpa"*
+  - *"Quando fazer uma limpeza profunda? Guia completo"*
+  - *"Remodelação ou limpeza pós-obra: o que esperar"*
+- Cada card: imagem placeholder (gradiente colorido), título, data, categoria, link "Ler mais"
+
+---
+
+### 13. FOOTER
+- Fundo azul profundo (`#1A3A5C`)
+- 4 colunas:
+  - **Logo + tagline + redes sociais** (Facebook, Instagram, LinkedIn — ícones)
+  - **Links Rápidos** (Início, Serviços, Sobre, Contacto)
+  - **Serviços** (Limpeza Residencial, Comercial, Pós-Obra, Construção, Instalações)
+  - **Contacto** (Morada, Telefone, Email, Horário)
+- Linha divisória
+- Rodapé: *"© 2025 Alicerce Galante - Serviços e Construções LDA · Todos os direitos reservados · NIF: XXXXXXXXX · Política de Privacidade"*
+- Botão flutuante de "voltar ao topo" (aparece ao fazer scroll, animado com GSAP)
+
+---
+
+## BOTÃO FLUTUANTE DE WHATSAPP
+- Ícone WhatsApp fixo no canto inferior direito
+- Cor verde `#25D366`
+- Ao clicar abre: `https://wa.me/351928380182`
+- Animação de pulso/ping contínua (CSS keyframes ou GSAP)
+- Tooltip ao hover: *"Fale connosco pelo WhatsApp"*
+
+---
+
+## RESPONSIVIDADE
+
+O site deve ser **100% responsivo** com breakpoints:
+- Desktop: ≥ 1200px
+- Tablet: 768px – 1199px
+- Mobile: < 768px
+
+Usar CSS Grid e Flexbox. Animações GSAP devem ser suavizadas em mobile (reduzir `duration` e `distance`). Menu mobile com hamburger animado.
+
+---
+
+## PERFORMANCE E CÓDIGO
+
+- **Um único arquivo HTML** com CSS e JS embutidos (inline ou `<style>` e `<script>`)
+- Fontes via Google Fonts CDN
+- GSAP via CDN (links fornecidos acima)
+- Ícones: **Lucide Icons** ou **Tabler Icons** via CDN, ou SVG inline
+- Sem dependências de backend — formulário com mock de submit em JS puro
+- Código comentado em português (seções claras)
+- CSS com variáveis (`--var`) para fácil customização futura
+- Sem jQuery — vanilla JS + GSAP puro
+
+---
+
+## REFERÊNCIAS VISUAIS E DE CONTEÚDO
+
+As seguintes empresas foram usadas como referência de serviços e posicionamento:
+
+1. **House Shine** (https://houseshine.pt) — referência de estrutura de serviços de limpeza doméstica e especializada, categorização de serviços, call-to-action de orçamento
+2. **Vibraconeng** (https://vibraconeng.vercel.app) — referência de site de construção civil em Portugal, visual moderno
+3. **Alicerce PT** (https://alicerce.pt/pt/obras-servicos) — referência de portfólio de obras e serviços: avaliação imobiliária, certificação energética, carpintaria, casas de madeira, espaços verdes, aquecimento e climatização
+
+---
+
+## TOM E VOZ DA MARCA
+
+- **Profissional mas acessível** — não demasiado formal, não demasiado casual
+- **Confiança e solidez** — a palavra "alicerce" transmite base sólida; usar essa metáfora no copy
+- **Orientado para o cliente** — foco em benefícios, não apenas em características
+- **Português de Portugal** — usar "connosco", "utilize", "efetue", "serviço", etc.
+- Evitar anglicismos desnecessários
+
+---
+
+## COPY / TEXTOS SUGERIDOS
+
+**Hero título opções:**
+- *"Limpeza Profissional. Construção com Carácter."*
+- *"O Alicerce do seu Espaço Perfeito."*
+- *"Serviços que Constroem Confiança."*
+
+**Tagline:**
+- *"Da limpeza à construção, somos o seu parceiro de confiança em Portugal."*
+
+**CTA principal:**
+- *"Pedir Orçamento Grátis"*
+
+**CTA secundário:**
+- *"Ver Todos os Serviços"*
+
+---
+
+## CHECKLIST FINAL — O QUE O SITE DEVE TER
+
+- [ ] Logo SVG temporária criada inline
+- [ ] Loader/splash screen animado com GSAP
+- [ ] Navbar fixa com glassmorphism no scroll
+- [ ] Hero fullscreen com animação de entrada cinematográfica
+- [ ] Faixa de estatísticas com contadores animados
+- [ ] Grid de serviços (3 categorias: Limpeza, Construção, Instalações)
+- [ ] Secção de diferenciais
+- [ ] Processo em 4 passos animado
+- [ ] Depoimentos em carrossel
+- [ ] Secção da equipa com cards
+- [ ] Formulário de orçamento completo com validação e mock submit
+- [ ] Secção Sobre Nós
+- [ ] 3 cards de blog/dicas
+- [ ] Footer completo com 4 colunas
+- [ ] Botão WhatsApp flutuante animado
+- [ ] Botão voltar ao topo animado
+- [ ] 100% responsivo (mobile, tablet, desktop)
+- [ ] Todas as animações GSAP funcionais
+- [ ] ScrollTrigger em todas as seções
+- [ ] Cursor personalizado (opcional)
+- [ ] Código limpo e comentado
+
+---
+
+*Prompt elaborado para geração de site institucional completo. Toda a identidade visual é temporária e deve ser substituída por assets profissionais futuramente. Os dados da empresa (telefone, morada) são reais e devem constar exatamente como especificado.*

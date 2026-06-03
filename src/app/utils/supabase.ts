@@ -26,9 +26,14 @@ export const supabaseFetch = async (path: string, options: RequestInit = {}) => 
     throw new Error(errText || `Erro na comunicação com o Supabase: ${response.status}`);
   }
 
-  if (response.status === 204) {
+  const text = await response.text();
+  if (!text || text.trim() === '') {
     return null;
   }
 
-  return response.json();
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    return text;
+  }
 };

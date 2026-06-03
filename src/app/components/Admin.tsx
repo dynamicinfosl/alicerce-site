@@ -81,6 +81,22 @@ export default function Admin() {
   const [editingCollabId, setEditingCollabId] = useState<string | null>(null);
   const [editingCollabPassword, setEditingCollabPassword] = useState('');
 
+  const getFriendlyErrorMessage = (error: any): string => {
+    if (!error || !error.message) return 'Ocorreu um erro desconhecido.';
+    try {
+      const dbErr = JSON.parse(error.message);
+      if (dbErr.code === '23505') {
+        return 'Este endereço de e-mail já está a ser utilizado por outro colaborador.';
+      }
+      return dbErr.message || error.message;
+    } catch (e) {
+      if (error.message.includes('23505')) {
+        return 'Este endereço de e-mail já está a ser utilizado por outro colaborador.';
+      }
+      return error.message;
+    }
+  };
+
   // Initialize and Load Data from Supabase
   useEffect(() => {
     const loadData = async () => {
@@ -177,7 +193,7 @@ export default function Admin() {
         setSelectedQuote({ ...selectedQuote, status: newStatus });
       }
     } catch (err: any) {
-      alert(`Erro ao atualizar estado no Supabase: ${err.message}`);
+      alert(`Erro ao atualizar estado: ${getFriendlyErrorMessage(err)}`);
     }
   };
 
@@ -193,7 +209,7 @@ export default function Admin() {
         setQuotes(updatedQuotes);
         setSelectedQuote(null);
       } catch (err: any) {
-        alert(`Erro ao eliminar orçamento no Supabase: ${err.message}`);
+        alert(`Erro ao eliminar orçamento: ${getFriendlyErrorMessage(err)}`);
       }
     }
   };
@@ -241,7 +257,7 @@ export default function Admin() {
         setCollabSuccessMsg('');
       }, 4000);
     } catch (err: any) {
-      setCollabErrorMsg(`Erro ao guardar no Supabase: ${err.message}`);
+      setCollabErrorMsg(`Erro ao registar: ${getFriendlyErrorMessage(err)}`);
     }
   };
 
@@ -267,7 +283,7 @@ export default function Admin() {
         setCollaborators(collaborators.filter(c => c.id !== collab.id));
         alert('Colaborador eliminado com sucesso!');
       } catch (err: any) {
-        alert(`Erro ao eliminar colaborador no Supabase: ${err.message}`);
+        alert(`Erro ao eliminar colaborador: ${getFriendlyErrorMessage(err)}`);
       }
     }
   };
@@ -309,7 +325,7 @@ export default function Admin() {
       setEditingCollabPassword('');
       alert('Palavra-passe atualizada com sucesso!');
     } catch (err: any) {
-      alert(`Erro ao atualizar a palavra-passe no Supabase: ${err.message}`);
+      alert(`Erro ao atualizar a palavra-passe: ${getFriendlyErrorMessage(err)}`);
     }
   };
 

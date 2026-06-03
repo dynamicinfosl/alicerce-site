@@ -111,12 +111,12 @@ export default function Hero() {
           className="text-5xl md:text-7xl font-bold text-white mb-6"
           style={{ fontFamily: 'Syne, sans-serif' }}
         >
-          <span className="word inline-block">Limpeza</span>{' '}
-          <span className="word inline-block">Profissional.</span>{' '}
-          <br />
           <span className="word inline-block">Construção</span>{' '}
           <span className="word inline-block">de</span>{' '}
-          <span className="word inline-block">Confiança.</span>
+          <span className="word inline-block">Confiança.</span>{' '}
+          <br />
+          <span className="word inline-block">Limpeza</span>{' '}
+          <span className="word inline-block">Profissional.</span>
         </h1>
 
         <p

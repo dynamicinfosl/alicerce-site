@@ -109,10 +109,6 @@ export default function About() {
               <div className="font-semibold" style={{ color: '#1A3A5C' }}>Responsabilidade Civil</div>
             </div>
             <div className="px-6 py-3 bg-white rounded-lg shadow-sm">
-              <div className="text-sm text-gray-500 mb-1">Certificação</div>
-              <div className="font-semibold" style={{ color: '#1A3A5C' }}>Energética</div>
-            </div>
-            <div className="px-6 py-3 bg-white rounded-lg shadow-sm">
               <div className="text-sm text-gray-500 mb-1">Membro</div>
               <div className="font-semibold" style={{ color: '#1A3A5C' }}>APEMETA</div>
             </div>

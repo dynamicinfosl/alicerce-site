@@ -148,7 +148,7 @@ export default function Services() {
       title: 'Carpintaria',
       desc: 'Armários, rodapés, soalhos, madeiras',
       category: 'Construção e Remodelação',
-      detailedDesc: 'Fabrico, instalação e reparação de elementos em madeira. Executamos montagem de roupeiros embutidos, cozinhas por medida, portas interiores e exteriores, aplicação de soalho flutuante ou madeira maciça, rodapés, escadas e decks exteriores. Combinamos técnicas tradicionais com design moderno.'
+      detailedDesc: 'Fabrico, instalação e reparação de elementos in madeira. Executamos montagem de roupeiros embutidos, cozinhas por medida, portas interiores e exteriores, aplicação de soalho flutuante ou madeira maciça, rodapés, escadas e decks exteriores. Combinamos técnicas tradicionais com design moderno.'
     },
     {
       icon: Shield,
@@ -163,13 +163,6 @@ export default function Services() {
       desc: 'Colocação e tratamento de pavimentos',
       category: 'Construção e Remodelação',
       detailedDesc: 'Instalação profissional de todo o tipo de pavimentos: cerâmicos, flutuantes, vinílicos, microcimento e madeira maciça. Realizamos também o tratamento, afagamento e envernizamento de pavimentos de madeira antigos, devolvendo-lhes o aspeto original e a proteção necessária.'
-    },
-    {
-      icon: Home,
-      title: 'Casas de Madeira',
-      desc: 'Construção modular, amovível, sem licença',
-      category: 'Construção e Remodelação',
-      detailedDesc: 'Construção de cabanas, anexos ou habitações modulares ecológicas em madeira. Soluções personalizadas, com excelente isolamento térmico e acústico, ideais para terrenos rústicos, alojamento turístico ou anexos de jardim. Orientamos no processo de escolha de materiais resistentes a pragas e humidades de forma sustentável.'
     }
   ];
 
@@ -194,13 +187,6 @@ export default function Services() {
       desc: 'AVAC, ar condicionado, aquecimento central',
       category: 'Instalações e Manutenção',
       detailedDesc: 'Garanta o conforto térmico da sua casa ou escritório durante todo o ano. Instalação e manutenção de sistemas de ar condicionado (monosplit, multisplit e condutas) altamente eficientes, aquecimento central, caldeiras e bombas de calor. Ajudamos a escolher a solução que melhor equilibra conforto e poupança energética.'
-    },
-    {
-      icon: FileCheck,
-      title: 'Certificação Energética',
-      desc: 'Obrigatória para venda/arrendamento',
-      category: 'Instalações e Manutenção',
-      detailedDesc: 'Realizamos a vistoria técnica e a emissão do Certificado Energético oficial para o seu imóvel, obrigatório por lei para publicitação, venda ou arrendamento. Analisamos o isolamento de paredes e coberturas, caixilharia, e eficiência dos equipamentos de climatização e águas quentes sanitárias.'
     },
     {
       icon: Trees,
@@ -280,27 +266,27 @@ export default function Services() {
           </p>
         </div>
 
-        {/* Limpeza Profissional */}
-        <div className="mb-16">
-          <h3 className="text-2xl font-bold mb-6 flex items-center gap-2" style={{ color: '#2563EB' }}>
-            <Sparkles size={28} />
-            Limpeza Profissional
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {cleaningServices.map((service, index) => (
-              <ServiceCard key={index} {...service} isPrimary />
-            ))}
-          </div>
-        </div>
-
         {/* Construção e Remodelação */}
         <div className="mb-16">
-          <h3 className="text-2xl font-bold mb-6 flex items-center gap-2" style={{ color: '#1A3A5C' }}>
+          <h3 className="text-2xl font-bold mb-6 flex items-center gap-2" style={{ color: '#2563EB' }}>
             <Construction size={28} />
             Construção e Remodelação
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {constructionServices.map((service, index) => (
+              <ServiceCard key={index} {...service} isPrimary />
+            ))}
+          </div>
+        </div>
+
+        {/* Limpeza Profissional */}
+        <div className="mb-16">
+          <h3 className="text-2xl font-bold mb-6 flex items-center gap-2" style={{ color: '#1A3A5C' }}>
+            <Sparkles size={28} />
+            Limpeza Profissional
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {cleaningServices.map((service, index) => (
               <ServiceCard key={index} {...service} />
             ))}
           </div>

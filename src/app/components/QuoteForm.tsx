@@ -2,14 +2,28 @@ import { useState, useEffect, useRef, FormEvent } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Phone, Mail, Clock, MapPin, CheckCircle2 } from 'lucide-react';
+import { supabaseFetch } from '../utils/supabase';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function QuoteForm() {
   const sectionRef = useRef<HTMLElement>(null);
   const formRef = useRef<HTMLDivElement>(null);
+  
   const [showSuccess, setShowSuccess] = useState(false);
-  const [serviceType, setServiceType] = useState('');
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    serviceType: '',
+    location: '',
+    area: '',
+    frequency: 'pontual',
+    message: '',
+    privacy: false
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     if (!formRef.current) return;
@@ -34,20 +48,166 @@ export default function QuoteForm() {
     );
   }, []);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setShowSuccess(true);
+    
+    if (!formData.privacy) {
+      setErrorMessage('Por favor, aceite a política de privacidade.');
+      return;
+    }
 
-    gsap.from('.success-message', {
-      scale: 0,
-      opacity: 0,
-      duration: 0.6,
-      ease: 'back.out(1.7)'
-    });
+    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+    const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
-    setTimeout(() => {
-      setShowSuccess(false);
-    }, 5000);
+    // Helper to save quote to Supabase
+    const saveToSupabase = async () => {
+      try {
+        await supabaseFetch('orcamentos', {
+          method: 'POST',
+          body: JSON.stringify({
+            nome: formData.name,
+            email: formData.email,
+            telefone: formData.phone,
+            tipo_servico: formData.serviceType,
+            localizacao: formData.location,
+            area_m2: formData.area ? Number(formData.area) : null,
+            frequencia: formData.serviceType.includes('limpeza') ? formData.frequency : "Não aplicável",
+            mensagem: formData.message || "Sem detalhes adicionais",
+            origem: 'Website',
+            status: 'Pendente'
+          })
+        });
+      } catch (err) {
+        console.error("Erro ao guardar no Supabase:", err);
+      }
+    };
+
+    // Helper to save quote to local storage
+    const saveToLocalStorage = () => {
+      try {
+        const existingQuotes = JSON.parse(localStorage.getItem('alicerce_quotes') || '[]');
+        const newQuote = {
+          id: Date.now().toString(),
+          date: new Date().toISOString(),
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          serviceType: formData.serviceType,
+          location: formData.location,
+          area: formData.area || "Não informado",
+          frequency: formData.serviceType.includes('limpeza') ? formData.frequency : "Não aplicável",
+          message: formData.message || "Sem detalhes adicionais",
+          status: 'Pendente'
+        };
+        existingQuotes.unshift(newQuote);
+        localStorage.setItem('alicerce_quotes', JSON.stringify(existingQuotes));
+      } catch (err) {
+        console.error("Erro ao guardar no localStorage:", err);
+      }
+    };
+
+    // Fallback for development if not configured
+    if (!serviceId || !templateId || !publicKey || 
+        serviceId === 'your_service_id_here' || 
+        templateId === 'your_template_id_here' || 
+        publicKey === 'your_public_key_here') {
+      console.warn("EmailJS não configurado nas variáveis de ambiente. Simulando envio...");
+      setIsSubmitting(true);
+      await new Promise(resolve => setTimeout(resolve, 1200));
+      setIsSubmitting(false);
+      setShowSuccess(true);
+      
+      saveToLocalStorage();
+      await saveToSupabase();
+      
+      gsap.from('.success-message', {
+        scale: 0,
+        opacity: 0,
+        duration: 0.6,
+        ease: 'back.out(1.7)'
+      });
+
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        serviceType: '',
+        location: '',
+        area: '',
+        frequency: 'pontual',
+        message: '',
+        privacy: false
+      });
+      
+      setTimeout(() => {
+        setShowSuccess(false);
+      }, 6000);
+      return;
+    }
+
+    setIsSubmitting(true);
+    setErrorMessage('');
+
+    try {
+      const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          service_id: serviceId,
+          template_id: templateId,
+          user_id: publicKey,
+          template_params: {
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            service_type: formData.serviceType,
+            location: formData.location,
+            area: formData.area || "Não informado",
+            frequency: formData.serviceType.includes('limpeza') ? formData.frequency : "Não aplicável",
+            message: formData.message || "Sem detalhes adicionais"
+          }
+        })
+      });
+
+      if (response.ok) {
+        setShowSuccess(true);
+        saveToLocalStorage();
+        await saveToSupabase();
+        
+        gsap.from('.success-message', {
+          scale: 0,
+          opacity: 0,
+          duration: 0.6,
+          ease: 'back.out(1.7)'
+        });
+
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          serviceType: '',
+          location: '',
+          area: '',
+          frequency: 'pontual',
+          message: '',
+          privacy: false
+        });
+
+        setTimeout(() => {
+          setShowSuccess(false);
+        }, 6000);
+      } else {
+        const errorText = await response.text();
+        setErrorMessage(`Falha ao enviar o orçamento: ${errorText || 'Erro desconhecido no EmailJS'}`);
+      }
+    } catch (error: any) {
+      setErrorMessage(`Erro de rede ao enviar: ${error.message || 'Verifique a sua ligação à internet'}`);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -67,16 +227,22 @@ export default function QuoteForm() {
           <div ref={formRef} className="bg-white rounded-2xl p-8 shadow-lg">
             {showSuccess ? (
               <div className="success-message text-center py-12">
-                <CheckCircle2 className="w-20 h-20 mx-auto mb-6 text-green-500" />
+                <CheckCircle2 className="w-20 h-20 mx-auto mb-6 text-green-500 animate-bounce" />
                 <h3 className="text-2xl font-bold mb-4" style={{ color: '#1A3A5C' }}>
                   Pedido Enviado com Sucesso!
                 </h3>
                 <p className="text-gray-600">
-                  Receberá o nosso contacto nas próximas 24 horas.
+                  Receberá o nosso contacto e proposta comercial nas próximas 24 horas.
                 </p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-6">
+                {errorMessage && (
+                  <div className="p-4 bg-red-50 border-l-4 border-red-500 rounded text-red-700 text-sm">
+                    {errorMessage}
+                  </div>
+                )}
+                
                 <div>
                   <label className="block text-sm font-medium mb-2" style={{ color: '#1A3A5C' }}>
                     Nome Completo *
@@ -84,6 +250,8 @@ export default function QuoteForm() {
                   <input
                     type="text"
                     required
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2563EB] transition-all"
                     placeholder="O seu nome"
                   />
@@ -97,6 +265,8 @@ export default function QuoteForm() {
                     <input
                       type="email"
                       required
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2563EB] transition-all"
                       placeholder="seu@email.com"
                     />
@@ -108,6 +278,8 @@ export default function QuoteForm() {
                     <input
                       type="tel"
                       required
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                       className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2563EB] transition-all"
                       placeholder="+351..."
                     />
@@ -120,8 +292,8 @@ export default function QuoteForm() {
                   </label>
                   <select
                     required
-                    value={serviceType}
-                    onChange={(e) => setServiceType(e.target.value)}
+                    value={formData.serviceType}
+                    onChange={(e) => setFormData({ ...formData, serviceType: e.target.value })}
                     className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2563EB] transition-all"
                   >
                     <option value="">Selecione...</option>
@@ -142,6 +314,8 @@ export default function QuoteForm() {
                     <input
                       type="text"
                       required
+                      value={formData.location}
+                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                       className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2563EB] transition-all"
                       placeholder="Vila Nova de Gaia"
                     />
@@ -152,18 +326,24 @@ export default function QuoteForm() {
                     </label>
                     <input
                       type="number"
+                      value={formData.area}
+                      onChange={(e) => setFormData({ ...formData, area: e.target.value })}
                       className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2563EB] transition-all"
                       placeholder="100"
                     />
                   </div>
                 </div>
 
-                {serviceType.includes('limpeza') && (
+                {formData.serviceType.includes('limpeza') && (
                   <div>
                     <label className="block text-sm font-medium mb-2" style={{ color: '#1A3A5C' }}>
                       Frequência
                     </label>
-                    <select className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2563EB] transition-all">
+                    <select
+                      value={formData.frequency}
+                      onChange={(e) => setFormData({ ...formData, frequency: e.target.value })}
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2563EB] transition-all"
+                    >
                       <option value="pontual">Pontual</option>
                       <option value="semanal">Semanal</option>
                       <option value="quinzenal">Quinzenal</option>
@@ -178,6 +358,8 @@ export default function QuoteForm() {
                   </label>
                   <textarea
                     rows={4}
+                    value={formData.message}
+                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2563EB] transition-all resize-none"
                     placeholder="Descreva as suas necessidades..."
                   />
@@ -188,6 +370,8 @@ export default function QuoteForm() {
                     type="checkbox"
                     required
                     id="privacy"
+                    checked={formData.privacy}
+                    onChange={(e) => setFormData({ ...formData, privacy: e.target.checked })}
                     className="mt-1"
                   />
                   <label htmlFor="privacy" className="text-sm text-gray-600">
@@ -197,10 +381,11 @@ export default function QuoteForm() {
 
                 <button
                   type="submit"
-                  className="w-full py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:scale-105 shadow-lg"
-                  style={{ backgroundColor: '#2563EB', color: '#FFFFFF' }}
+                  disabled={isSubmitting}
+                  className="w-full py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:scale-105 shadow-lg flex items-center justify-center gap-2"
+                  style={{ backgroundColor: '#2563EB', color: '#FFFFFF', opacity: isSubmitting ? 0.7 : 1 }}
                 >
-                  Enviar Pedido de Orçamento
+                  {isSubmitting ? 'A enviar...' : 'Enviar Pedido de Orçamento'}
                 </button>
               </form>
             )}

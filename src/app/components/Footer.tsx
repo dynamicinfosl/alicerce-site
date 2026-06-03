@@ -95,7 +95,8 @@ export default function Footer() {
         <div className="border-t border-white/10 pt-8">
           <p className="text-center text-white/60 text-sm">
             © 2025 Alicerce Galante - Serviços e Construções LDA · Todos os direitos reservados · NIF: XXXXXXXXX ·{' '}
-            <a href="#" className="hover:text-[#38BDF8] transition-colors">Política de Privacidade</a>
+            <a href="#politica" className="hover:text-[#38BDF8] transition-colors">Política de Privacidade</a> ·{' '}
+            <a href="#admin" className="hover:text-[#38BDF8] transition-colors">Área Reservada</a>
           </p>
         </div>
       </div>

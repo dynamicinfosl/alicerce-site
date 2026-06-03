@@ -21,6 +21,7 @@ interface Quote {
 }
 
 interface Collaborator {
+  id: string;
   email: string;
   password?: string;
   name: string;
@@ -43,6 +44,7 @@ const mapDbQuote = (dbQuote: any): Quote => ({
 });
 
 const mapDbCollab = (dbCollab: any): Collaborator => ({
+  id: dbCollab.id,
   name: dbCollab.name,
   email: dbCollab.email,
   password: dbCollab.password,
@@ -74,6 +76,10 @@ export default function Admin() {
 
   // Details Modal
   const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
+
+  // Editing collaborator password states
+  const [editingCollabId, setEditingCollabId] = useState<string | null>(null);
+  const [editingCollabPassword, setEditingCollabPassword] = useState('');
 
   // Initialize and Load Data from Supabase
   useEffect(() => {
@@ -236,6 +242,74 @@ export default function Admin() {
       }, 4000);
     } catch (err: any) {
       setCollabErrorMsg(`Erro ao guardar no Supabase: ${err.message}`);
+    }
+  };
+
+  // Delete Collaborator
+  const handleDeleteCollab = async (collab: Collaborator) => {
+    if (currentUser?.role !== 'Administrador') {
+      alert('Apenas administradores podem eliminar colaboradores.');
+      return;
+    }
+
+    if (collab.email.toLowerCase() === currentUser.email.toLowerCase()) {
+      alert('Não pode eliminar a sua própria conta.');
+      return;
+    }
+
+    if (window.confirm(`Tem a certeza que deseja eliminar o colaborador "${collab.name}"?`)) {
+      try {
+        await supabaseFetch(`colaboradores?id=eq.${collab.id}`, {
+          method: 'DELETE'
+        });
+
+        // Update local state
+        setCollaborators(collaborators.filter(c => c.id !== collab.id));
+        alert('Colaborador eliminado com sucesso!');
+      } catch (err: any) {
+        alert(`Erro ao eliminar colaborador no Supabase: ${err.message}`);
+      }
+    }
+  };
+
+  // Update Collaborator Password
+  const handleUpdatePassword = async (id: string) => {
+    if (!editingCollabPassword) {
+      alert('A palavra-passe não pode estar vazia.');
+      return;
+    }
+
+    if (currentUser?.role !== 'Administrador' && currentUser?.id !== id) {
+      alert('Apenas administradores podem alterar a palavra-passe de outros colaboradores.');
+      return;
+    }
+
+    try {
+      await supabaseFetch(`colaboradores?id=eq.${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          password: editingCollabPassword
+        })
+      });
+
+      // Update local state
+      setCollaborators(collaborators.map(c => {
+        if (c.id === id) {
+          return { ...c, password: editingCollabPassword };
+        }
+        return c;
+      }));
+
+      // Update currentUser session if they edited their own password
+      if (currentUser && currentUser.id === id) {
+        setCurrentUser({ ...currentUser, password: editingCollabPassword });
+      }
+
+      setEditingCollabId(null);
+      setEditingCollabPassword('');
+      alert('Palavra-passe atualizada com sucesso!');
+    } catch (err: any) {
+      alert(`Erro ao atualizar a palavra-passe no Supabase: ${err.message}`);
     }
   };
 
@@ -789,8 +863,8 @@ export default function Admin() {
                 </div>
 
                 <div className="divide-y divide-slate-100">
-                  {collaborators.map((c, index) => (
-                    <div key={index} className="p-6 flex items-center justify-between gap-4 hover:bg-slate-50/50 transition-colors">
+                  {collaborators.map((c) => (
+                    <div key={c.id || c.email} className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/50 transition-colors">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-700 uppercase">
                           {c.name.charAt(0)}
@@ -808,8 +882,65 @@ export default function Admin() {
                         </div>
                       </div>
                       
-                      <div className="text-xs text-slate-400 font-medium">
-                        Registado em: {formatDate(c.createdAt).split(' ')[0]}
+                      <div>
+                        {editingCollabId === c.id ? (
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="password"
+                              value={editingCollabPassword}
+                              onChange={(e) => setEditingCollabPassword(e.target.value)}
+                              className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-slate-800"
+                              placeholder="Nova palavra-passe"
+                            />
+                            <button
+                              onClick={() => handleUpdatePassword(c.id)}
+                              className="p-1.5 rounded-lg bg-green-500 hover:bg-green-600 text-white transition-colors flex items-center justify-center"
+                              title="Confirmar"
+                            >
+                              <Check size={14} />
+                            </button>
+                            <button
+                              onClick={() => {
+                                setEditingCollabId(null);
+                                setEditingCollabPassword('');
+                              }}
+                              className="p-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-600 transition-colors flex items-center justify-center"
+                              title="Cancelar"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-end gap-4">
+                            <div className="text-xs text-slate-400 font-medium">
+                              Registado em: {formatDate(c.createdAt).split(' ')[0]}
+                            </div>
+                            
+                            <div className="flex items-center gap-1.5">
+                              {(currentUser?.role === 'Administrador' || currentUser?.id === c.id) && (
+                                <button
+                                  onClick={() => {
+                                    setEditingCollabId(c.id);
+                                    setEditingCollabPassword(c.password || '');
+                                  }}
+                                  className="p-1.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors flex items-center justify-center"
+                                  title="Alterar palavra-passe"
+                                >
+                                  <Key size={14} />
+                                </button>
+                              )}
+                              {currentUser?.role === 'Administrador' && currentUser?.id !== c.id && (
+                                <button
+                                  onClick={() => handleDeleteCollab(c)}
+                                  className="p-1.5 rounded-lg border border-red-100 bg-red-50 text-red-500 hover:bg-red-100 hover:text-red-600 transition-colors flex items-center justify-center"
+                                  title="Eliminar colaborador"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}

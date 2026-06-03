@@ -3,7 +3,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
   Sparkles, Building2, Wrench, Home, Briefcase, Trash2,
-  Sofa, Key, Droplets, Construction, PaintBucket, Hammer,
+  Key, Droplets, Construction, PaintBucket, Hammer,
   Shield, Zap, Droplet, Wind, FileCheck, Trees, Lock, X
 } from 'lucide-react';
 
@@ -104,13 +104,7 @@ export default function Services() {
       category: 'Limpeza Profissional',
       detailedDesc: 'Serviço especializado de limpeza de vidros, caixilhos, calhas e portadas. Atuamos em moradias, apartamentos, escritórios e montras comerciais. Utilizamos técnicas profissionais de secagem e produtos repelentes de poeiras para que a transparência e o brilho durem muito mais tempo. Cumprimos todas as normas de segurança para trabalhos em altura.'
     },
-    {
-      icon: Sofa,
-      title: 'Sofás e Tapetes',
-      desc: 'Higienização profunda com equipamento especializado',
-      category: 'Limpeza Profissional',
-      detailedDesc: 'Elimine ácaros, fungos, bactérias e manchas difíceis dos seus estofados e tapetes. Utilizamos o sistema de injeção-extração a quente ou a seco, de acordo com o tecido, que limpa profundamente as fibras sem danificar a textura ou a cor. Ideal para sofás, cadeiras estofadas, colchões, tapetes e alcatifas. Excelente para quem tem animais de estimação ou alergias.'
-    },
+
     {
       icon: Key,
       title: 'Alojamento Local',
